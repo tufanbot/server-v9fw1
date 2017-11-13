@@ -1,0 +1,13 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm install
+  post_build:
+    commands:
+      - zip -r lambda.zip *
+artifacts:
+  files: 
+    - lambda.zip
+    - swagger.json

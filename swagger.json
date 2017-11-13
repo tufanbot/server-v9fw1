@@ -1,0 +1,1104 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "REST API v1",
+    "version": "1.0.0",
+    "description": "REST API v1",
+    "termsOfService": "",
+    "contact": {
+      "name": "tufan.io",
+      "url": "http://tufan.io",
+      "email": "contact@tufan.io"
+    },
+    "license": {
+      "name": "ISC",
+      "url": "http://tufan.io"
+    }
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/todos": {
+      "get": {
+        "summary": "Get a (paged/sorted) list of todos",
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "todo.list",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "query string",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "sort parameter(s). sortBy=-email,name ",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "type": "number"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Result offset",
+            "required": false,
+            "type": "number"
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "description": "Count of results returned per request. Defaults to 100, limit 1000",
+            "required": false,
+            "type": "number"
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\" }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "todos",
+            "schema": {
+              "$ref": "#/definitions/todos"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to access todos.list"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble retrieving todos.list. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new todo",
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "todo.create",
+        "parameters": [
+          {
+            "in": "body",
+            "required": true,
+            "name": "todo",
+            "schema": {
+              "$ref": "#/definitions/todo"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\", \"body\": $input.json('$') }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/todo"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "Detected a malformed request to todo.create"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to todo.create"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble with todo.create. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Headers": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Methods": "'POST,GET,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    },
+    "/todos/{id}": {
+      "get": {
+        "summary": "Get an existing todo",
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "todo.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "object id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"id\": $input.params('id'), \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\" }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "todo",
+            "schema": {
+              "$ref": "#/definitions/todo"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to todo.read"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble reading todo.read. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing todo",
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "todo.update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "object id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "required": true,
+            "name": "todo",
+            "schema": {
+              "$ref": "#/definitions/todo"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\", \"body\": $input.json('$'), \"id\": $input.params('id') }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "schema": {
+              "$ref": "#/definitions/todo"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "Detected a malformed request to todos.update"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to access todos.update"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble retrieving todos.update. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an existing todo",
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "todo.delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "object id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\", \"id\": $input.params('id') }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "delete successful, no content in response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "Detected a malformed attempt to todo.delete"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to perform todo.delete"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble performing todo.delete. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Headers": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Methods": "'DELETE,GET,OPTIONS,PUT'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get a (paged/sorted) list of users",
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "user.list",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "query string",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "sort parameter(s). sortBy=-email,name ",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "type": "number"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Result offset",
+            "required": false,
+            "type": "number"
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "description": "Count of results returned per request. Defaults to 100, limit 1000",
+            "required": false,
+            "type": "number"
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\" }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "users",
+            "schema": {
+              "$ref": "#/definitions/users"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to access users.list"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble retrieving users.list. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new user",
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "user.create",
+        "parameters": [
+          {
+            "in": "body",
+            "required": true,
+            "name": "user",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\", \"body\": $input.json('$') }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/user"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "Detected a malformed request to user.create"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to user.create"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble with user.create. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Headers": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Methods": "'POST,GET,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get an existing user",
+        "produces": [
+          "application/json"
+        ],
+        "operationId": "user.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "object id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"id\": $input.params('id'), \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\" }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "user",
+            "schema": {
+              "$ref": "#/definitions/user"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to user.read"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble reading user.read. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing user",
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "user.update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "object id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "required": true,
+            "name": "user",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\", \"body\": $input.json('$'), \"id\": $input.params('id') }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "schema": {
+              "$ref": "#/definitions/user"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "Detected a malformed request to users.update"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to access users.update"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble retrieving users.update. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an existing user",
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "user.delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "object id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "{{apiEndpointUri}}",
+          "httpMethod": "POST",
+          "requestTemplates": {
+            "application/json": "{ \"method\": \"$context.httpMethod\", \"resource\": \"$context.resourcePath\", \"id\": $input.params('id') }"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "$input.json('$.body')"
+              }
+            },
+            "BAD.*": {
+              "statusCode": "400"
+            },
+            "INT.*": {
+              "statusCode": "500"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "delete successful, no content in response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "Detected a malformed attempt to user.delete"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "You are not authorized to perform user.delete"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Validation exception",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "default": "We had trouble performing user.delete. Please report the problem if this continues"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string"
+              },
+              "Access-Control-Allow-Headers": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Methods": "'DELETE,GET,OPTIONS,PUT'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "todo": {
+      "properties": {
+        "text": {
+          "type": "",
+          "description": ""
+        },
+        "completed": {
+          "type": "",
+          "description": ""
+        }
+      }
+    },
+    "todos": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/todo"
+      }
+    },
+    "user": {
+      "properties": {
+        "name": {
+          "type": "",
+          "description": ""
+        }
+      }
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/user"
+      }
+    }
+  }
+}
